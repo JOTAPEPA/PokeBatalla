@@ -100,8 +100,11 @@ async function luchar() {
   }
 
   try {
-    const response1 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${numberInput.value}`);
-    const response2 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${parseInt(numberInput.value) + 1}`);
+    const randomPokemon1 = Math.floor(Math.random() * 898) + 1; // Generar un número aleatorio entre 1 y 898
+    const randomPokemon2 = Math.floor(Math.random() * 898) + 1; // Generar otro número aleatorio entre 1 y 898
+
+    const response1 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomPokemon1}`);
+    const response2 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomPokemon2}`);
     pokemon1.value = response1.data;
     pokemon2.value = response2.data;
 
