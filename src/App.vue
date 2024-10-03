@@ -10,156 +10,285 @@
       <q-btn color="white" text-color="black" label="7 Rondas" class="btnRondas" @click="escogerRondas(7)" />
     </div>
     <div v-else class="contenidoBatalla">
-      <div class="column" id="jugador1">
-        <h4>Jugador 1</h4>
+      <div class="containerBatalla">
+        <div class="column" id="jugador1">
+          <h4>Jugador 1</h4>
+          <div v-if="pokemon1">
+            <p>{{ pokemon1.name }}</p>
+            <img :src="pokemon1.sprites.front_default" alt="Pokemon 1">
+            <p v-if="stat1">Stat {{ statInput }}: {{ stat1.base_stat }}</p>
+            <p>Rondas ganadas: {{ victoriasJugador1 }}</p>
+          </div>
+        </div>
+        <div class="column" id="lucha">
+          <h4>lucha</h4>
+          <div>
+            <p>Stats disponibles: hp, attack, defense, special-attack, special-defense, speed</p>
+          </div>
+          <div v-if="statResult !== null">
+            <p>{{ winnerMessage }}</p>
+          </div>
+          <div v-if="rondasRestantes > 0">
+            <p>Rondas restantes: {{ rondasRestantes }}</p>
+          </div>
+          <div v-else>
+            <p>{{ finalMessage }}</p>
+            <button @click="reiniciarJuego">Reiniciar Juego</button>
+          </div>
+        </div>
+        <div class="column" id="jugador2">
+          <h4>Jugador 2</h4>
+          <div v-if="pokemon2">
+            <p>{{ pokemon2.name }}</p>
+            <img :src="pokemon2.sprites.front_default" alt="Pokemon 2">
+            <p v-if="stat2">Stat {{ statInput }}: {{ stat2.base_stat }}</p>
+            <p>Rondas ganadas: {{ victoriasJugador2 }}</p>
+          </div>
+        </div>
       </div>
-      <div class="column" id="lucha">
-        <h4>lucha</h4>
+      <div class="inputs">
+        <input v-model="numberInput" type="number" placeholder="Pokemon">
+        <select v-model="statInput">
+          <option value="" disabled selected>Seleccione un stat</option>
+          <option value="hp">HP</option>
+          <option value="attack">Attack</option>
+          <option value="defense">Defense</option>
+          <option value="special-attack">Special Attack</option>
+          <option value="special-defense">Special Defense</option>
+          <option value="speed">Speed</option>
+        </select>
+        <button @click="luchar" :disabled="rondasRestantes <= 0">Luchar</button>
       </div>
-      <div class="column" id="jugador2">
-        <h4>Jugador 2</h4>
-      </div>
-    </div>
-    <div class="escogerPokemon">
-      <q-btn label="Lucha" color="primary" @click="prompt = true" />
-      <q-dialog v-model="prompt" persistent>
-        <q-card style="min-width: 350px">
-          <q-card-section>
-            <div class="text-h6">Digite un numero para escoger su pokemon</div>
-          </q-card-section>
-
-          <q-card-section class="q-pt-none">
-            <q-input dense v-model="pokemonNumber" autofocus @keyup.enter="prompt = false" />
-          </q-card-section>
-
-          <q-card-actions align="right" class="text-primary">
-            <q-btn flat label="Cancel" v-close-popup />
-            <q-btn flat label="Add address" v-close-popup @click="listarPokemones(pokemonNumber)" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
     </div>
   </div>
-
 </template>
 
-
 <script setup>
-import axios from "axios"
+import axios from "axios";
 import { ref } from 'vue';
 
-let prompt = ref(false);
-let pokemonNumber = ref('');
-
 const mostrarRondas = ref(true);
+const numberInput = ref(null);
+const statInput = ref('');
+const pokemon1 = ref(null);
+const pokemon2 = ref(null);
+const stat1 = ref(null);
+const stat2 = ref(null);
+const statResult = ref(null);
+const winnerMessage = ref('');
+const rondasRestantes = ref(0);
+const victoriasJugador1 = ref(0);
+const victoriasJugador2 = ref(0);
+const finalMessage = ref('');
 
 function escogerRondas(rondas) {
-  console.log(`Rondas escogidas: ${rondas}`);
+  rondasRestantes.value = rondas;
+  victoriasJugador1.value = 0;
+  victoriasJugador2.value = 0;
   mostrarRondas.value = false;
 }
 
-function getRandomPokemonId() {
-  return Math.floor(Math.random() * 898) + 1;
-}
-
-async function listarPokemones() {
-  let id1 = getRandomPokemonId();
-  let id2 = getRandomPokemonId();
-  while (id1 === id2) {
-    id2 = getRandomPokemonId();
+async function luchar() {
+  if (!numberInput.value || numberInput.value <= 0) {
+    alert("Por favor, ingrese un número válido para el Pokémon.");
+    return;
   }
-  let url1 = `https://pokeapi.co/api/v2/pokemon/${id1}`;
-  let url2 = `https://pokeapi.co/api/v2/pokemon/${id2}`;
+
+  if (!statInput.value) {
+    alert("Por favor, seleccione un stat válido.");
+    return;
+  }
+
   try {
-    let [response1, response2] = await Promise.all([axios.get(url1), axios.get(url2)]);
-    console.log('Pokemon 1:', response1.data);
-    console.log('Pokemon 2:', response2.data);
+    const response1 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${numberInput.value}`);
+    const response2 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${parseInt(numberInput.value) + 1}`);
+    pokemon1.value = response1.data;
+    pokemon2.value = response2.data;
+
+    stat1.value = pokemon1.value.stats.find(stat => stat.stat.name === statInput.value);
+    stat2.value = pokemon2.value.stats.find(stat => stat.stat.name === statInput.value);
+
+    if (stat1.value && stat2.value) {
+      statResult.value = stat1.value.base_stat - stat2.value.base_stat;
+      if (statResult.value > 0) {
+        winnerMessage.value = `El ganador es ${pokemon1.value.name} con un stat de ${stat1.value.base_stat}`;
+        victoriasJugador1.value++;
+      } else if (statResult.value < 0) {
+        winnerMessage.value = `El ganador es ${pokemon2.value.name} con un stat de ${stat2.value.base_stat}`;
+        victoriasJugador2.value++;
+      } else {
+        winnerMessage.value = "Es un empate!";
+      }
+    } else {
+      statResult.value = "Stat no encontrado en uno o ambos Pokémon.";
+      winnerMessage.value = '';
+    }
+
+    rondasRestantes.value--;
+
+    if (rondasRestantes.value === 0) {
+      if (victoriasJugador1.value > victoriasJugador2.value) {
+        finalMessage.value = "Jugador 1 es el ganador!";
+      } else if (victoriasJugador1.value < victoriasJugador2.value) {
+        finalMessage.value = "Jugador 2 es el ganador!";
+      } else {
+        finalMessage.value = "Es un empate!";
+      }
+    }
   } catch (error) {
-    console.log(error)
+    console.error("Error fetching Pokémon data:", error);
+    alert("Error al obtener los datos del Pokémon. Por favor, intente nuevamente.");
   }
 }
 
+function reiniciarJuego() {
+  mostrarRondas.value = true;
+  numberInput.value = null;
+  statInput.value = '';
+  pokemon1.value = null;
+  pokemon2.value = null;
+  stat1.value = null;
+  stat2.value = null;
+  statResult.value = null;
+  winnerMessage.value = '';
+  rondasRestantes.value = 0;
+  victoriasJugador1.value = 0;
+  victoriasJugador2.value = 0;
+  finalMessage.value = '';
+}
 </script>
 
 <style>
 * {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'Arial';
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
 }
 
 .container {
   position: relative;
   height: 100vh;
-  background-image: url(https://wallpaper.forfun.com/fetch/c5/c50189e1ab11216f0b7f458d957d9b19.jpeg);
+  background-image: url(https://images5.alphacoders.com/135/1351278.png);
   background-repeat: no-repeat;
   background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .title {
-  display: grid;
-  justify-content: center;
-
-  padding: 10px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .title h1 {
   color: white;
-  font-family: 'Arial';
+  font-family: 'Arial', sans-serif;
   padding: 20px;
   text-shadow: 2px 2px 4px #000000;
 }
 
 .escogerRondas {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   text-align: center;
-  position: absolute;
-  top: 27%;
-  left: 30%;
-  width: 800px;
-  height: 600px;
-  background-image: url(https://www.solopress.com/blog/wp-content/uploads/2013/11/25pikachu-f1920x1200-1024x640.jpg);
-  margin-bottom: 20px;
-  border-radius: 10px;
-  transition: transform 0.5s;
-}
-
-
-.escogerRondas:hover {
-  transform: translate(0px, -10px);
-}
-
-.contenidoBatalla {
-  display: flex;
-}
-
-.column {
-  text-align: center;
-  color: white;
-  width: 33%;
-  height: 600px;
-}
-
-#jugador1 {
-  background-color: crimson;
-  padding: 20px;
-  margin: 30px;
-  border-radius: 10px;
-}
-
-#jugador2 {
-  background-color: blue;
-  margin: 30px;
+  background-color: rgba(255, 255, 255, 0.8);
   padding: 20px;
   border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btnRondas {
   width: 150px;
   height: 50px;
-  margin: 30px;
+  margin: 10px;
+}
+
+.contenidoBatalla {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.containerBatalla {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 20px;
+}
+
+.column {
+  text-align: center;
+  color: white;
+  width: 30%;
+  padding: 30px; 
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 1.5em;
+}
+
+.column img {
+  width: 200px; 
+  height: 200px; 
+  margin-bottom: 20px;
+}
+
+#jugador1 {
+  background-color: rgba(220, 20, 60, 0.8);
+}
+
+#jugador2 {
+  background-color: rgba(0, 0, 255, 0.8);
+}
+
+#lucha {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inputs input,
+.inputs select {
+  width: 250px; 
+  height: 40px; 
+  margin: 10px;
+  padding: 10px; 
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1.2em; 
+}
+
+.inputs button {
+  width: 150px; 
+  height: 50px; 
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 1.2em; 
+}
+
+.inputs button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.inputs button:hover:not(:disabled) {
+  background-color: #0056b3;
 }
 </style>
