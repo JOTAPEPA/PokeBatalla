@@ -251,12 +251,6 @@ body {
   font-size: 1.5em;
 }
 
-.columnas img {
-  width: 200px; 
-  height: 200px; 
-  margin-bottom: 20px;
-}
-
 #jugador1 {
   background-color: rgba(220, 20, 60, 0.8);
 }
