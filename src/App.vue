@@ -318,7 +318,7 @@ body {
     display: grid;
   }
 
- .column{
+ .columna{
   flex-direction: row;
   height: 350px;
   width: 600px;
@@ -326,19 +326,19 @@ body {
   justify-content: center;
  }
 
- .column img {
+ .columna img {
     max-width: 50%;
     height: auto;
   }
 
-  .column p {
+  .columna p {
     margin-left: 10px;
     flex: 1;
   }
 }
 
 @media (max-width: 630px){
-  .column{
+  .columna{
     width: 400px;
   }
 } 
