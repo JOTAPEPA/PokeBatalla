@@ -251,7 +251,7 @@ body {
   font-size: 1.5em;
 }
 
-.column img {
+.columnas img {
   width: 200px; 
   height: 200px; 
   margin-bottom: 20px;
@@ -318,7 +318,7 @@ body {
     display: grid;
   }
 
- .columna{
+ .columnas{
   flex-direction: row;
   height: 350px;
   width: 600px;
@@ -326,19 +326,19 @@ body {
   justify-content: center;
  }
 
- .columna img {
+ .columnas img {
     max-width: 50%;
     height: auto;
   }
 
-  .columna p {
+  .columnas p {
     margin-left: 10px;
     flex: 1;
   }
 }
 
 @media (max-width: 630px){
-  .columna{
+  .columnas{
     width: 400px;
   }
 } 
