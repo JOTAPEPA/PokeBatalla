@@ -100,8 +100,8 @@ async function luchar() {
   }
 
   try {
-    const randomPokemon1 = Math.floor(Math.random() * 898) + 1; // Generar un número aleatorio entre 1 y 898
-    const randomPokemon2 = Math.floor(Math.random() * 898) + 1; // Generar otro número aleatorio entre 1 y 898
+    const randomPokemon1 = Math.floor(Math.random() * 898) + 1; 
+    const randomPokemon2 = Math.floor(Math.random() * 898) + 1; 
 
     const response1 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomPokemon1}`);
     const response2 = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomPokemon2}`);
@@ -294,4 +294,40 @@ body {
 .inputs button:hover:not(:disabled) {
   background-color: #0056b3;
 }
+
+@media (max-width:830px){
+
+  .container{
+    background-image: none;
+    height: auto;
+  }
+  .containerBatalla{
+    display: grid;
+  }
+
+ .column{
+  flex-direction: row;
+  height: 350px;
+  width: 600px;
+  margin: 20px;
+ }
+
+ .column img {
+    max-width: 50%;
+    height: auto;
+  }
+
+  .column p {
+    margin-left: 10px;
+    flex: 1;
+  }
+}
+
+@media (max-width: 630px){
+  .column{
+    width: 400px;
+  }
+}
+
+
 </style>
