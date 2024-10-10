@@ -11,7 +11,7 @@
     </div>
     <div v-else class="contenidoBatalla">
       <div class="containerBatalla">
-        <div class="column" id="jugador1">
+        <div class="columnas" id="jugador1">
           <h4>Jugador 1</h4>
           <div v-if="pokemon1">
             <p>{{ pokemon1.name }}</p>
@@ -20,7 +20,7 @@
             <p>Rondas ganadas: {{ victoriasJugador1 }}</p>
           </div>
         </div>
-        <div class="column" id="lucha">
+        <div class="columnas" id="lucha">
           <h4>lucha</h4>
           <div>
             <p>Stats disponibles: hp, attack, defense, special-attack, special-defense, speed</p>
@@ -36,7 +36,7 @@
             <button @click="reiniciarJuego">Reiniciar Juego</button>
           </div>
         </div>
-        <div class="column" id="jugador2">
+        <div class="columnas" id="jugador2">
           <h4>Jugador 2</h4>
           <div v-if="pokemon2">
             <p>{{ pokemon2.name }}</p>
@@ -66,6 +66,7 @@
 <script setup>
 import axios from "axios";
 import { ref } from 'vue';
+import { useQuasar } from 'quasar'
 
 const mostrarRondas = ref(true);
 const numberInput = ref(null);
@@ -80,6 +81,9 @@ const rondasRestantes = ref(0);
 const victoriasJugador1 = ref(0);
 const victoriasJugador2 = ref(0);
 const finalMessage = ref('');
+const $q = useQuasar()
+ 
+
 
 function escogerRondas(rondas) {
   rondasRestantes.value = rondas;
@@ -90,12 +94,22 @@ function escogerRondas(rondas) {
 
 async function luchar() {
   if (!numberInput.value || numberInput.value <= 0) {
-    alert("Por favor, ingrese un número válido para el Pokémon.");
+     $q.notify({
+          message: 'Digite un numero valido',
+          icon: 'announcement',
+          position:"top-right",
+          type:"negative"
+        }) 
     return;
   }
 
   if (!statInput.value) {
-    alert("Por favor, seleccione un stat válido.");
+    $q.notify({
+          message: 'Digite un stat valido',
+          icon: 'announcement',
+          position:"top-right",
+          type:"negative"
+        }) 
     return;
   }
 
@@ -162,7 +176,7 @@ function reiniciarJuego() {
 </script>
 
 <style>
-* {
+ *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -228,13 +242,12 @@ body {
   margin-bottom: 20px;
 }
 
-.column {
+.columnas {
   text-align: center;
   color: white;
   width: 30%;
   padding: 30px; 
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
   font-size: 1.5em;
 }
 
@@ -328,7 +341,7 @@ body {
   .column{
     width: 400px;
   }
-}
+} 
 
 
 </style>
