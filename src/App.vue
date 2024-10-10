@@ -310,6 +310,7 @@ body {
   height: 350px;
   width: 600px;
   margin: 20px;
+  justify-content: center;
  }
 
  .column img {
